@@ -1,0 +1,51 @@
+10
+Ktoré ročné obdobie nasleduje po lete?
+Jeseň
+Jar
+Zima
+Znovu leto
+Ako sa voľá najväčší cicavec?
+Veľryba
+Slon
+Žirafa
+Medveď
+Ktorá planéta je druhá najbližšia ku Slnku?
+Venuša
+Merkúr
+Neptún
+Zem
+Formát papiera A4 má plochu (v cm^2):
+623.7
+567.4
+632.7
+673.2
+Aká farba má kód #FFFFFF?
+čierna
+biela
+modrá
+žiadna
+Dokončite príslovie: Oheň je dobrý sluha, ale zlý ...
+pán
+duch
+učiteľ
+radca
+Akým symbolom vo fyzike označujeme silu?
+F
+p
+W
+E
+Ktorá z týchto krajín má najviac obyvateľov?
+Čína
+Rusko
+USA
+Brazília
+Najlepšie číslo je:
+73
+19
+22
+404
+Dátový typ pre celočíselné hodnoty je:
+int
+float
+double
+char
