@@ -14,8 +14,8 @@ public:
 private:
     Ui::cv8_milionarClass ui;
 
-    bool game_on = false;
-    int otazkaNum = 1;
+    //bool game_on = false;
+    int otazkaNum = 0;
     int pocetOtazok = 0;
     double body = 0.0;
     QandA otazky[10];
