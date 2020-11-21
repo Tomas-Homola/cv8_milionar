@@ -3,6 +3,7 @@
 #include <QtWidgets/QMainWindow>
 #include <ui_cv8_milionar.h>
 #include "QandA.h"
+#include "player.h"
 
 class cv8_milionar : public QMainWindow
 {
@@ -17,8 +18,11 @@ private:
     //bool game_on = false;
     int otazkaNum = 0;
     int pocetOtazok = 0;
-    double body = 0.0;
-    QandA otazky[10];
+    //double body = 0.0;
+
+    //QandA otazky[10];
+    QandA* otazky;
+    Player player;
 
     bool loadQuestions(std::string fileName);
 
