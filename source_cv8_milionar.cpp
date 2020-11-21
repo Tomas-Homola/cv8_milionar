@@ -6,6 +6,22 @@
 using std::cout;
 using std::endl;
 
+void cv8_milionar::shuffleAnswers(QandA& q)
+{
+    int x = 0, y = 0;
+    std::string temp = "";
+
+    for (int i = 0; i < 8; i++)
+    {
+        x = std::rand() % 5;
+        y = std::rand() % 5;
+
+        temp = q.getAnswer(x);
+        q.setAnswer(x, q.getAnswer(y));
+        q.setAnswer(y, temp);
+    }
+}
+
 bool cv8_milionar::loadQuestions(std::string fileName)
 {
     std::string temp = "";
@@ -28,18 +44,11 @@ bool cv8_milionar::loadQuestions(std::string fileName)
         // precitanie a nastavenie odpovedi
         for (int j = 0; j < 4; j++)
         {
-            std::getline(textFile, temp);
-            questions[i].setAnswer(j, temp);
+            std::getline(textFile, temp); // precita odpoved
+            questions[i].setAnswer(j, temp); // zapise odpoved
         }
-        
-        /*std::getline(textFile, temp);
-        questions[i].setCorrectAnswer(temp);
-        std::getline(textFile, temp);
-        questions[i].setWrongAnswer1(temp);
-        std::getline(textFile, temp);
-        questions[i].setWrongAnswer2(temp);
-        std::getline(textFile, temp);
-        questions[i].setWrongAnswer3(temp);*/
+
+        questions[i].setCorrectAnswer(questions[i].getAnswer(0)); // zapise spravnu odpoved
     }
     
     return true;
@@ -123,18 +132,13 @@ void cv8_milionar::on_pushButtonNewGame_clicked() // button Nova hra
         
         ui.textEditQuestion->setText(QString::fromStdString(questions[questionNum].getQuestion()));
 
-        /*ui.choiceA->setText(QString::fromStdString("A) " + otazky[otazkaNum].getCorrectAnswer()));
-        ui.choiceB->setText(QString::fromStdString("B) " + otazky[otazkaNum].getWrongAnser1()));
-        ui.choiceC->setText(QString::fromStdString("C) " + otazky[otazkaNum].getWrongAnser2()));
-        ui.choiceD->setText(QString::fromStdString("D) " + otazky[otazkaNum].getWrongAnser3()));*/
-        ui.choiceA->setText(QString::fromStdString("A) " + questions[questionNum].getCorrectAnswer()));
+        shuffleAnswers(questions[questionNum]); // pomiesanie odpovedi
+
+        ui.choiceA->setText(QString::fromStdString("A) " + questions[questionNum].getAnswer(0)));
         ui.choiceB->setText(QString::fromStdString("B) " + questions[questionNum].getAnswer(1)));
         ui.choiceC->setText(QString::fromStdString("C) " + questions[questionNum].getAnswer(2)));
         ui.choiceD->setText(QString::fromStdString("D) " + questions[questionNum].getAnswer(3)));
-
-
     }
-
 }
 
 void cv8_milionar::on_pushButtonEndGame_clicked() // button Ukoncit hru
@@ -175,7 +179,9 @@ void cv8_milionar::on_pushButtonAccept_clicked() // button Potvrdit
     {
         ui.textEditQuestion->setText(QString::fromStdString(questions[questionNum].getQuestion()));
 
-        ui.choiceA->setText(QString::fromStdString("A) " + questions[questionNum].getCorrectAnswer()));
+        shuffleAnswers(questions[questionNum]); // pomiesanie odpovedi
+
+        ui.choiceA->setText(QString::fromStdString("A) " + questions[questionNum].getAnswer(0)));
         ui.choiceB->setText(QString::fromStdString("B) " + questions[questionNum].getAnswer(1)));
         ui.choiceC->setText(QString::fromStdString("C) " + questions[questionNum].getAnswer(2)));
         ui.choiceD->setText(QString::fromStdString("D) " + questions[questionNum].getAnswer(3)));
@@ -196,7 +202,9 @@ void cv8_milionar::on_pushButtonSkip_clicked() // button Preskocit otazku
     {
         ui.textEditQuestion->setText(QString::fromStdString(questions[questionNum].getQuestion()));
 
-        ui.choiceA->setText(QString::fromStdString("A) " + questions[questionNum].getCorrectAnswer()));
+        shuffleAnswers(questions[questionNum]); // pomiesanie odpovedi
+
+        ui.choiceA->setText(QString::fromStdString("A) " + questions[questionNum].getAnswer(0)));
         ui.choiceB->setText(QString::fromStdString("B) " + questions[questionNum].getAnswer(1)));
         ui.choiceC->setText(QString::fromStdString("C) " + questions[questionNum].getAnswer(2)));
         ui.choiceD->setText(QString::fromStdString("D) " + questions[questionNum].getAnswer(3)));

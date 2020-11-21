@@ -15,16 +15,16 @@ public:
 private:
     Ui::cv8_milionarClass ui;
 
-    //bool game_on = false;
     int questionNum = 0;
     int numOfQuestions = 0;
-    //double body = 0.0;
+    int temp[10] = { 0,1,2,3,4,5,6,8,9 };
 
     //QandA otazky[10];
     QandA* questions;
     Player player;
 
-    bool loadQuestions(std::string fileName);
+    bool loadQuestions(std::string fileName); // nacitanie otazok z txt suboru
+    void shuffleAnswers(QandA& q);
 
 private slots:
     void on_pushButtonNewGame_clicked(); // nova hra
