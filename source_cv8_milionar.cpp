@@ -16,32 +16,40 @@ bool cv8_milionar::loadQuestions(std::string fileName)
         return false;
 
     std::getline(textFile, temp);
-    pocetOtazok = std::stoi(temp);
+    numOfQuestions = std::stoi(temp);
 
-    otazky = new QandA[pocetOtazok];
+    questions = new QandA[numOfQuestions];
 
-    for (int i = 0; i < pocetOtazok; i++)
+    for (int i = 0; i < numOfQuestions; i++)
     {
         std::getline(textFile, temp); // precitanie otazky
-        otazky[i].setQestion(temp); // nastavenie otazky
+        questions[i].setQestion(temp); // nastavenie otazky
         
         // precitanie a nastavenie odpovedi
+        for (int j = 0; j < 4; j++)
+        {
+            std::getline(textFile, temp);
+            questions[i].setAnswer(j, temp);
+        }
+        
+        /*std::getline(textFile, temp);
+        questions[i].setCorrectAnswer(temp);
         std::getline(textFile, temp);
-        otazky[i].setCorrectAnswer(temp);
+        questions[i].setWrongAnswer1(temp);
         std::getline(textFile, temp);
-        otazky[i].setWrongAnswer1(temp);
+        questions[i].setWrongAnswer2(temp);
         std::getline(textFile, temp);
-        otazky[i].setWrongAnswer2(temp);
-        std::getline(textFile, temp);
-        otazky[i].setWrongAnswer3(temp);
+        questions[i].setWrongAnswer3(temp);*/
     }
     
     return true;
 }
 
-void printQ(QandA& q)
+void printQuestion(QandA& q)
 {
-    cout << q.getQuestion() << endl << q.getCorrectAnswer() << endl << q.getWrongAnser1() << endl << q.getWrongAnser2() << endl << q.getWrongAnser3() << endl;
+    cout << q.getQuestion() << endl;
+    for (int i = 0; i < 4; i++)
+        cout << q.getAnswer(i) << endl;
 }
 
 cv8_milionar::cv8_milionar(QWidget *parent) : QMainWindow(parent) // co sa stane po spusteni
@@ -63,8 +71,8 @@ cv8_milionar::cv8_milionar(QWidget *parent) : QMainWindow(parent) // co sa stane
     ui.groupBoxChoices->setEnabled(false); // groupBox s moznostami
     ui.groupBoxBottom->setEnabled(false); // posledny groupBox
 
-    /*for (int i = 0; i < pocetOtazok; i++)
-        printQ(otazky[i]);*/
+    for (int i = 0; i < numOfQuestions; i++)
+        printQuestion(questions[i]);
 }
 
 void cv8_milionar::on_pushButtonNewGame_clicked() // button Nova hra
@@ -73,7 +81,7 @@ void cv8_milionar::on_pushButtonNewGame_clicked() // button Nova hra
     {
         player.setPlayerScore(0.0); // nastavenie score hraca
         player.setPlayerName(ui.lineEditName->text()); // nastavenie mena hraca
-        otazkaNum = 0;
+        questionNum = 0;
 
         if (ui.difficulty->currentIndex() == 0)
         {
@@ -113,11 +121,17 @@ void cv8_milionar::on_pushButtonNewGame_clicked() // button Nova hra
 
         ui.scoreBox->setValue(player.getPlayerScore());
         
-        ui.textEditQuestion->setText(QString::fromStdString(otazky[otazkaNum].getQuestion()));
-        ui.choiceA->setText(QString::fromStdString("A) " + otazky[otazkaNum].getCorrectAnswer()));
+        ui.textEditQuestion->setText(QString::fromStdString(questions[questionNum].getQuestion()));
+
+        /*ui.choiceA->setText(QString::fromStdString("A) " + otazky[otazkaNum].getCorrectAnswer()));
         ui.choiceB->setText(QString::fromStdString("B) " + otazky[otazkaNum].getWrongAnser1()));
         ui.choiceC->setText(QString::fromStdString("C) " + otazky[otazkaNum].getWrongAnser2()));
-        ui.choiceD->setText(QString::fromStdString("D) " + otazky[otazkaNum].getWrongAnser3()));
+        ui.choiceD->setText(QString::fromStdString("D) " + otazky[otazkaNum].getWrongAnser3()));*/
+        ui.choiceA->setText(QString::fromStdString("A) " + questions[questionNum].getCorrectAnswer()));
+        ui.choiceB->setText(QString::fromStdString("B) " + questions[questionNum].getAnswer(1)));
+        ui.choiceC->setText(QString::fromStdString("C) " + questions[questionNum].getAnswer(2)));
+        ui.choiceD->setText(QString::fromStdString("D) " + questions[questionNum].getAnswer(3)));
+
 
     }
 
@@ -128,7 +142,7 @@ void cv8_milionar::on_pushButtonEndGame_clicked() // button Ukoncit hru
     cout << "Koniec hry" << endl;
 
     // odcitanie bodov za nezodpovedane otazky
-    int temp = pocetOtazok - otazkaNum;
+    int temp = numOfQuestions - questionNum;
     player.setPlayerScore(player.getPlayerScore() - temp * 0.5);
     ui.scoreBox->setValue(player.getPlayerScore());
 
@@ -149,43 +163,43 @@ void cv8_milionar::on_pushButtonEndGame_clicked() // button Ukoncit hru
 
 void cv8_milionar::on_pushButtonAccept_clicked() // button Potvrdit
 {
-    otazkaNum++;
+    questionNum++;
     player.setPlayerScore(player.getPlayerScore() + 1.0);
 
     ui.scoreBox->setValue(player.getPlayerScore());
 
-    if (otazkaNum == pocetOtazok)
+    if (questionNum == numOfQuestions)
         on_pushButtonEndGame_clicked();
 
-    if (otazkaNum < pocetOtazok)
+    if (questionNum < numOfQuestions)
     {
-        ui.textEditQuestion->setText(QString::fromStdString(otazky[otazkaNum].getQuestion()));
+        ui.textEditQuestion->setText(QString::fromStdString(questions[questionNum].getQuestion()));
 
-        ui.choiceA->setText(QString::fromStdString("A) " + otazky[otazkaNum].getCorrectAnswer()));
-        ui.choiceB->setText(QString::fromStdString("B) " + otazky[otazkaNum].getWrongAnser1()));
-        ui.choiceC->setText(QString::fromStdString("C) " + otazky[otazkaNum].getWrongAnser2()));
-        ui.choiceD->setText(QString::fromStdString("D) " + otazky[otazkaNum].getWrongAnser3()));
+        ui.choiceA->setText(QString::fromStdString("A) " + questions[questionNum].getCorrectAnswer()));
+        ui.choiceB->setText(QString::fromStdString("B) " + questions[questionNum].getAnswer(1)));
+        ui.choiceC->setText(QString::fromStdString("C) " + questions[questionNum].getAnswer(2)));
+        ui.choiceD->setText(QString::fromStdString("D) " + questions[questionNum].getAnswer(3)));
     }
 }
 
 void cv8_milionar::on_pushButtonSkip_clicked() // button Preskocit otazku
 {
-    otazkaNum++;
+    questionNum++;
     player.setPlayerScore(player.getPlayerScore() - 0.5);
 
     ui.scoreBox->setValue(player.getPlayerScore());
 
-    if (otazkaNum == pocetOtazok)
+    if (questionNum == numOfQuestions)
         on_pushButtonEndGame_clicked();
 
-    if (otazkaNum < pocetOtazok)
+    if (questionNum < numOfQuestions)
     {
-        ui.textEditQuestion->setText(QString::fromStdString(otazky[otazkaNum].getQuestion()));
+        ui.textEditQuestion->setText(QString::fromStdString(questions[questionNum].getQuestion()));
 
-        ui.choiceA->setText(QString::fromStdString("A) " + otazky[otazkaNum].getCorrectAnswer()));
-        ui.choiceB->setText(QString::fromStdString("B) " + otazky[otazkaNum].getWrongAnser1()));
-        ui.choiceC->setText(QString::fromStdString("C) " + otazky[otazkaNum].getWrongAnser2()));
-        ui.choiceD->setText(QString::fromStdString("D) " + otazky[otazkaNum].getWrongAnser3()));
+        ui.choiceA->setText(QString::fromStdString("A) " + questions[questionNum].getCorrectAnswer()));
+        ui.choiceB->setText(QString::fromStdString("B) " + questions[questionNum].getAnswer(1)));
+        ui.choiceC->setText(QString::fromStdString("C) " + questions[questionNum].getAnswer(2)));
+        ui.choiceD->setText(QString::fromStdString("D) " + questions[questionNum].getAnswer(3)));
     }
 }
 
