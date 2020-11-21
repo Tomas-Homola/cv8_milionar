@@ -4,6 +4,7 @@
 #include <ui_cv8_milionar.h>
 #include "QandA.h"
 #include "player.h"
+#include <vector>
 
 class cv8_milionar : public QMainWindow
 {
@@ -17,14 +18,16 @@ private:
 
     int questionNum = 0;
     int numOfQuestions = 0;
-    int temp[10] = { 0,1,2,3,4,5,6,8,9 };
+    int randNum[10] = { 0,1,2,3,4,5,6,8,9 };
+    std::string chosenAnswer = "";
+    bool correctChoice = false;
 
     //QandA otazky[10];
     QandA* questions;
     Player player;
+    std::vector<QRadioButton*> choice = { ui.choiceA, ui.choiceB, ui.choiceC, ui.choiceD };
 
     bool loadQuestions(std::string fileName); // nacitanie otazok z txt suboru
-    void shuffleAnswers(QandA& q);
 
 private slots:
     void on_pushButtonNewGame_clicked(); // nova hra
@@ -35,4 +38,9 @@ private slots:
     void on_pushButtonZolik1_clicked(); // zolik 1
     void on_pushButtonZolik2_clicked(); // zolik 2
     void on_pushButtonZolik3_clicked(); // zolik 3
+
+    void on_choiceA_clicked();
+    void on_choiceB_clicked();
+    void on_choiceC_clicked();
+    void on_choiceD_clicked();
 };

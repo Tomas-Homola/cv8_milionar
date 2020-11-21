@@ -2,25 +2,11 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <cstdlib>
 
 using std::cout;
 using std::endl;
 
-void cv8_milionar::shuffleAnswers(QandA& q)
-{
-    int x = 0, y = 0;
-    std::string temp = "";
-
-    for (int i = 0; i < 8; i++)
-    {
-        x = std::rand() % 5;
-        y = std::rand() % 5;
-
-        temp = q.getAnswer(x);
-        q.setAnswer(x, q.getAnswer(y));
-        q.setAnswer(y, temp);
-    }
-}
 
 bool cv8_milionar::loadQuestions(std::string fileName)
 {
@@ -51,6 +37,7 @@ bool cv8_milionar::loadQuestions(std::string fileName)
         questions[i].setCorrectAnswer(questions[i].getAnswer(0)); // zapise spravnu odpoved
     }
     
+    textFile.close();
     return true;
 }
 
@@ -80,15 +67,15 @@ cv8_milionar::cv8_milionar(QWidget *parent) : QMainWindow(parent) // co sa stane
     ui.groupBoxChoices->setEnabled(false); // groupBox s moznostami
     ui.groupBoxBottom->setEnabled(false); // posledny groupBox
 
-    for (int i = 0; i < numOfQuestions; i++)
-        printQuestion(questions[i]);
+    /*for (int i = 0; i < numOfQuestions; i++)
+        printQuestion(questions[i]);*/
 }
 
 void cv8_milionar::on_pushButtonNewGame_clicked() // button Nova hra
 {
     if (ui.lineEditName->text() != "") // pokial nie je zadane meno hraca, tak sa hra nepusti
     {
-        player.setPlayerScore(0.0); // nastavenie score hraca
+        player.setPlayerScore(0.0); // nastavenie score hraca na zaciatku hry
         player.setPlayerName(ui.lineEditName->text()); // nastavenie mena hraca
         questionNum = 0;
 
@@ -108,9 +95,10 @@ void cv8_milionar::on_pushButtonNewGame_clicked() // button Nova hra
         }
 
         if (ui.randomQuestions->isChecked())
-            cout << "Nahodne poradie otazok" << endl;
+            std::random_shuffle(std::begin(randNum), std::end(randNum)); // pomiesanie poradia otazok
         else
-            cout << "Normalne poradie otazok" << endl;
+            for (int i = 0; i < 10; i++)
+                randNum[i] = i;
 
         ui.pushButtonEndGame->setEnabled(true); // Ukoncit hru
         ui.pushButtonAccept->setEnabled(true); // Potvrdit
@@ -130,14 +118,14 @@ void cv8_milionar::on_pushButtonNewGame_clicked() // button Nova hra
 
         ui.scoreBox->setValue(player.getPlayerScore());
         
-        ui.textEditQuestion->setText(QString::fromStdString(questions[questionNum].getQuestion()));
+        ui.textEditQuestion->setText(QString::fromStdString(questions[randNum[questionNum]].getQuestion())); // vypisanie prvej otazky, ked sa zacne hra
 
-        shuffleAnswers(questions[questionNum]); // pomiesanie odpovedi
+        questions[randNum[questionNum]].shuffleAnswers();
 
-        ui.choiceA->setText(QString::fromStdString("A) " + questions[questionNum].getAnswer(0)));
-        ui.choiceB->setText(QString::fromStdString("B) " + questions[questionNum].getAnswer(1)));
-        ui.choiceC->setText(QString::fromStdString("C) " + questions[questionNum].getAnswer(2)));
-        ui.choiceD->setText(QString::fromStdString("D) " + questions[questionNum].getAnswer(3)));
+        ui.choiceA->setText(QString::fromStdString("A) " + questions[randNum[questionNum]].getAnswer(0)));
+        ui.choiceB->setText(QString::fromStdString("B) " + questions[randNum[questionNum]].getAnswer(1)));
+        ui.choiceC->setText(QString::fromStdString("C) " + questions[randNum[questionNum]].getAnswer(2)));
+        ui.choiceD->setText(QString::fromStdString("D) " + questions[randNum[questionNum]].getAnswer(3)));
     }
 }
 
@@ -150,6 +138,7 @@ void cv8_milionar::on_pushButtonEndGame_clicked() // button Ukoncit hru
     player.setPlayerScore(player.getPlayerScore() - temp * 0.5);
     ui.scoreBox->setValue(player.getPlayerScore());
 
+    // znefunkcnenie tlacitok na konci hry
     ui.pushButtonEndGame->setEnabled(false); // Ukoncit hru
     ui.pushButtonAccept->setEnabled(false); // Potvrdit
     ui.pushButtonSkip->setEnabled(false); // Preskocit otazku
@@ -167,54 +156,82 @@ void cv8_milionar::on_pushButtonEndGame_clicked() // button Ukoncit hru
 
 void cv8_milionar::on_pushButtonAccept_clicked() // button Potvrdit
 {
-    questionNum++;
-    player.setPlayerScore(player.getPlayerScore() + 1.0);
+    cout << "2 chosen: " << chosenAnswer << endl << "correct answer: " << questions[randNum[questionNum]].getCorrectAnswer() << endl;
 
-    ui.scoreBox->setValue(player.getPlayerScore());
+    if (chosenAnswer == questions[randNum[questionNum]].getCorrectAnswer())
+    {
+        cout << "Correct" << endl;
+        player.setPlayerScore(player.getPlayerScore() + 1.0);
+        ui.scoreBox->setValue(player.getPlayerScore());
+    }
+    else
+    {
+        cout << "Incorrect" << endl;
+        player.setPlayerScore(player.getPlayerScore() - 1.0);
+        ui.scoreBox->setValue(player.getPlayerScore());
+    }
+
+    questionNum++;
 
     if (questionNum == numOfQuestions)
         on_pushButtonEndGame_clicked();
 
     if (questionNum < numOfQuestions)
     {
-        ui.textEditQuestion->setText(QString::fromStdString(questions[questionNum].getQuestion()));
+        ui.textEditQuestion->setText(QString::fromStdString(questions[randNum[questionNum]].getQuestion()));
 
-        shuffleAnswers(questions[questionNum]); // pomiesanie odpovedi
+        questions[randNum[questionNum]].shuffleAnswers();
 
-        ui.choiceA->setText(QString::fromStdString("A) " + questions[questionNum].getAnswer(0)));
-        ui.choiceB->setText(QString::fromStdString("B) " + questions[questionNum].getAnswer(1)));
-        ui.choiceC->setText(QString::fromStdString("C) " + questions[questionNum].getAnswer(2)));
-        ui.choiceD->setText(QString::fromStdString("D) " + questions[questionNum].getAnswer(3)));
+        ui.choiceA->setText(QString::fromStdString("A) " + questions[randNum[questionNum]].getAnswer(0)));
+        ui.choiceB->setText(QString::fromStdString("B) " + questions[randNum[questionNum]].getAnswer(1)));
+        ui.choiceC->setText(QString::fromStdString("C) " + questions[randNum[questionNum]].getAnswer(2)));
+        ui.choiceD->setText(QString::fromStdString("D) " + questions[randNum[questionNum]].getAnswer(3)));
+
+        ui.choiceA->setChecked(false);
+        ui.choiceB->setChecked(false);
+        ui.choiceC->setChecked(false);
+        ui.choiceD->setChecked(false);
     }
 }
 
 void cv8_milionar::on_pushButtonSkip_clicked() // button Preskocit otazku
 {
-    questionNum++;
     player.setPlayerScore(player.getPlayerScore() - 0.5);
 
     ui.scoreBox->setValue(player.getPlayerScore());
+
+    questionNum++;
 
     if (questionNum == numOfQuestions)
         on_pushButtonEndGame_clicked();
 
     if (questionNum < numOfQuestions)
     {
-        ui.textEditQuestion->setText(QString::fromStdString(questions[questionNum].getQuestion()));
+        ui.textEditQuestion->setText(QString::fromStdString(questions[randNum[questionNum]].getQuestion()));
 
-        shuffleAnswers(questions[questionNum]); // pomiesanie odpovedi
+        questions[randNum[questionNum]].shuffleAnswers();
 
-        ui.choiceA->setText(QString::fromStdString("A) " + questions[questionNum].getAnswer(0)));
-        ui.choiceB->setText(QString::fromStdString("B) " + questions[questionNum].getAnswer(1)));
-        ui.choiceC->setText(QString::fromStdString("C) " + questions[questionNum].getAnswer(2)));
-        ui.choiceD->setText(QString::fromStdString("D) " + questions[questionNum].getAnswer(3)));
+        ui.choiceA->setText(QString::fromStdString("A) " + questions[randNum[questionNum]].getAnswer(0)));
+        ui.choiceB->setText(QString::fromStdString("B) " + questions[randNum[questionNum]].getAnswer(1)));
+        ui.choiceC->setText(QString::fromStdString("C) " + questions[randNum[questionNum]].getAnswer(2)));
+        ui.choiceD->setText(QString::fromStdString("D) " + questions[randNum[questionNum]].getAnswer(3)));
+
+        ui.choiceA->setChecked(false);
+        ui.choiceB->setChecked(false);
+        ui.choiceC->setChecked(false);
+        ui.choiceD->setChecked(false);
     }
 }
 
+//########## ZOLIKY ##########//
+
 void cv8_milionar::on_pushButtonZolik1_clicked() // zolik 1
 {
+    int temp = 0;
+
     cout << "Zolik 1" << endl;
     ui.pushButtonZolik1->setEnabled(false);
+
 }
 
 void cv8_milionar::on_pushButtonZolik2_clicked() // zolik 2
@@ -227,4 +244,34 @@ void cv8_milionar::on_pushButtonZolik3_clicked() // zolik 3
 {
     cout << "Zolik 3" << endl;
     ui.pushButtonZolik3->setEnabled(false);
+}
+
+//########## JEDNOTLIVE MOZNOSTI ##########//
+
+void cv8_milionar::on_choiceA_clicked()
+{
+    chosenAnswer = questions[randNum[questionNum]].getAnswer(0);
+    
+    cout << "chosen: " << chosenAnswer << endl;
+}
+
+void cv8_milionar::on_choiceB_clicked()
+{
+    chosenAnswer = questions[randNum[questionNum]].getAnswer(1);
+
+    cout << "chosen: " << chosenAnswer << endl;
+}
+
+void cv8_milionar::on_choiceC_clicked()
+{
+    chosenAnswer = questions[randNum[questionNum]].getAnswer(2);
+
+    cout << "chosen: " << chosenAnswer << endl;
+}
+
+void cv8_milionar::on_choiceD_clicked()
+{
+    chosenAnswer = questions[randNum[questionNum]].getAnswer(3);
+
+    cout << "chosen: " << chosenAnswer << endl;
 }

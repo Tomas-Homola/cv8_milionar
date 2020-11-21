@@ -21,4 +21,6 @@ public:
 	std::string getAnswer(int index) { return answers[index]; }
 	std::string getCorrectAnswer() { return correctAnswer; }
 
+	void shuffleAnswers() { std::random_shuffle(std::begin(answers), std::end(answers)); }
+
 };
