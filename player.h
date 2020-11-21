@@ -5,6 +5,7 @@ class Player
 private:
 	QString playerName = "";
 	double playerScore = -1.0;
+
 public:
 	Player() {}
 	Player(QString playerName, double playerScore) { this->playerName = playerName; this->playerScore = playerScore; }
@@ -15,5 +16,4 @@ public:
 	QString getPlayerName() { return playerName; }
 	double getPlayerScore() { return playerScore; }
 
-	
 };
