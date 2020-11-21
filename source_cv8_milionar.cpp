@@ -18,6 +18,8 @@ bool cv8_milionar::loadQuestions(std::string fileName)
     std::getline(textFile, temp);
     pocetOtazok = std::stoi(temp);
 
+    otazky = new QandA[pocetOtazok];
+
     for (int i = 0; i < pocetOtazok; i++)
     {
         std::getline(textFile, temp); // precitanie otazky
@@ -42,7 +44,7 @@ void printQ(QandA& q)
     cout << q.getQuestion() << endl << q.getCorrectAnswer() << endl << q.getWrongAnser1() << endl << q.getWrongAnser2() << endl << q.getWrongAnser3() << endl;
 }
 
-cv8_milionar::cv8_milionar(QWidget *parent) : QMainWindow(parent)
+cv8_milionar::cv8_milionar(QWidget *parent) : QMainWindow(parent) // co sa stane po spusteni
 {
     ui.setupUi(this);
 
@@ -67,10 +69,31 @@ cv8_milionar::cv8_milionar(QWidget *parent) : QMainWindow(parent)
 
 void cv8_milionar::on_pushButtonNewGame_clicked() // button Nova hra
 {
-    if (ui.lineEditName->text() != "")
+    if (ui.lineEditName->text() != "") // pokial nie je zadane meno hraca, tak sa hra nepusti
     {
-        body = 0.0;
+        player.setPlayerScore(0.0); // nastavenie score hraca
+        player.setPlayerName(ui.lineEditName->text()); // nastavenie mena hraca
         otazkaNum = 0;
+
+        if (ui.difficulty->currentIndex() == 0)
+        {
+            ui.pushButtonZolik2->setVisible(true);
+            ui.pushButtonZolik3->setVisible(true);
+        }
+        else if (ui.difficulty->currentIndex() == 1) // ak je zvolena stredna obtiaznost
+        {
+            ui.pushButtonZolik3->setVisible(false);
+        }
+        else if (ui.difficulty->currentIndex() == 2) // ak je zvolena tazka obtiaznost
+        {
+            ui.pushButtonZolik2->setVisible(false);
+            ui.pushButtonZolik3->setVisible(false);
+        }
+
+        if (ui.randomQuestions->isChecked())
+            cout << "Nahodne poradie otazok" << endl;
+        else
+            cout << "Normalne poradie otazok" << endl;
 
         ui.pushButtonEndGame->setEnabled(true); // Ukoncit hru
         ui.pushButtonAccept->setEnabled(true); // Potvrdit
@@ -88,7 +111,7 @@ void cv8_milionar::on_pushButtonNewGame_clicked() // button Nova hra
 
         ui.lineEditName->setReadOnly(true); // zakazane menit meno pocas hry
 
-        ui.scoreBox->setValue(body);
+        ui.scoreBox->setValue(player.getPlayerScore());
         
         ui.textEditQuestion->setText(QString::fromStdString(otazky[otazkaNum].getQuestion()));
         ui.choiceA->setText(QString::fromStdString("A) " + otazky[otazkaNum].getCorrectAnswer()));
@@ -106,8 +129,8 @@ void cv8_milionar::on_pushButtonEndGame_clicked() // button Ukoncit hru
 
     // odcitanie bodov za nezodpovedane otazky
     int temp = pocetOtazok - otazkaNum;
-    body -= temp * 0.5;
-    ui.scoreBox->setValue(body);
+    player.setPlayerScore(player.getPlayerScore() - temp * 0.5);
+    ui.scoreBox->setValue(player.getPlayerScore());
 
     ui.pushButtonEndGame->setEnabled(false); // Ukoncit hru
     ui.pushButtonAccept->setEnabled(false); // Potvrdit
@@ -127,9 +150,9 @@ void cv8_milionar::on_pushButtonEndGame_clicked() // button Ukoncit hru
 void cv8_milionar::on_pushButtonAccept_clicked() // button Potvrdit
 {
     otazkaNum++;
-    body += 1.0;
+    player.setPlayerScore(player.getPlayerScore() + 1.0);
 
-    ui.scoreBox->setValue(body);
+    ui.scoreBox->setValue(player.getPlayerScore());
 
     if (otazkaNum == pocetOtazok)
         on_pushButtonEndGame_clicked();
@@ -148,9 +171,9 @@ void cv8_milionar::on_pushButtonAccept_clicked() // button Potvrdit
 void cv8_milionar::on_pushButtonSkip_clicked() // button Preskocit otazku
 {
     otazkaNum++;
-    body -= 0.5;
+    player.setPlayerScore(player.getPlayerScore() - 0.5);
 
-    ui.scoreBox->setValue(body);
+    ui.scoreBox->setValue(player.getPlayerScore());
 
     if (otazkaNum == pocetOtazok)
         on_pushButtonEndGame_clicked();
