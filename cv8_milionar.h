@@ -5,6 +5,7 @@
 #include "QandA.h"
 #include "player.h"
 #include <vector>
+#include <array>
 
 class cv8_milionar : public QMainWindow
 {
@@ -25,7 +26,8 @@ private:
     //QandA otazky[10];
     QandA* questions;
     Player player;
-    std::vector<QRadioButton*> choice = { ui.choiceA, ui.choiceB, ui.choiceC, ui.choiceD };
+    std::array<QRadioButton*, 4> choice = { ui.choiceA, ui.choiceB, ui.choiceC, ui.choiceD };
+    QRadioButton* choices[4] = { ui.choiceA, ui.choiceB, ui.choiceC, ui.choiceD };
 
     bool loadQuestions(std::string fileName); // nacitanie otazok z txt suboru
 
