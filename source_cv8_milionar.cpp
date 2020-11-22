@@ -9,7 +9,6 @@
 using std::cout;
 using std::endl;
 
-
 bool cv8_milionar::loadQuestions(std::string fileName)
 {
     std::string temp = "";
@@ -80,7 +79,7 @@ void cv8_milionar::on_pushButtonNewGame_clicked() // button Nova hra
     {
         player.setPlayerScore(0.0); // nastavenie score hraca na zaciatku hry
         player.setPlayerName(ui.lineEditName->text()); // nastavenie mena hraca
-        questionNum = 0;
+        questionNum = 0; // index pre poradie otazok
 
         if (ui.difficulty->currentIndex() == 0)
         {
@@ -97,10 +96,10 @@ void cv8_milionar::on_pushButtonNewGame_clicked() // button Nova hra
             ui.pushButtonZolik3->setVisible(false);
         }
 
-        if (ui.randomQuestions->isChecked())
-            std::random_shuffle(std::begin(randNum), std::end(randNum)); // pomiesanie poradia otazok
+        if (ui.randomQuestions->isChecked()) // ak je vybrane nahodne poradie otazok
+            std::random_shuffle(std::begin(randNum), std::end(randNum)); // pomiesaju sa jednotlive indexi otazok
         else
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 10; i++) // inak pojdu pekne od prvej po poslednu
                 randNum[i] = i;
 
         ui.pushButtonEndGame->setEnabled(true); // Ukoncit hru
@@ -108,7 +107,6 @@ void cv8_milionar::on_pushButtonNewGame_clicked() // button Nova hra
         ui.pushButtonSkip->setEnabled(true); // Preskocit otazku
         ui.groupBoxZoliky->setEnabled(true); // groupBox so zolikmi
         ui.groupBoxQuestion->setEnabled(true); // groupBox s otazkou
-        ui.groupBoxQuestion->setTitle("Otazka");
         ui.groupBoxChoices->setEnabled(true); // groupBox s moznostami
         ui.groupBoxBottom->setEnabled(true); // posledny groupBox
         ui.pushButtonNewGame->setEnabled(false); // Nova hra
@@ -124,7 +122,7 @@ void cv8_milionar::on_pushButtonNewGame_clicked() // button Nova hra
         
         ui.textEditQuestion->setText(QString::fromStdString(questions[randNum[questionNum]].getQuestion())); // vypisanie prvej otazky, ked sa zacne hra
 
-        questions[randNum[questionNum]].shuffleAnswers();
+        questions[randNum[questionNum]].shuffleAnswers(); // pomiesanie odpovedi na danu otazku
 
         ui.choiceA->setText(QString::fromStdString("A) " + questions[randNum[questionNum]].getAnswer(0)));
         ui.choiceB->setText(QString::fromStdString("B) " + questions[randNum[questionNum]].getAnswer(1)));
@@ -135,7 +133,7 @@ void cv8_milionar::on_pushButtonNewGame_clicked() // button Nova hra
 
 void cv8_milionar::on_pushButtonEndGame_clicked() // button Ukoncit hru
 {
-    cout << "Koniec hry" << endl;
+    //cout << "Koniec hry" << endl;
 
     // odcitanie bodov za nezodpovedane otazky
     int temp = numOfQuestions - questionNum;
@@ -157,14 +155,22 @@ void cv8_milionar::on_pushButtonEndGame_clicked() // button Ukoncit hru
     ui.randomQuestions->setEnabled(true);
     ui.difficulty->setEnabled(true);
 
+    // pri radioButtonoch nebudu uz vypisane posledne mozne odpovede a ani otazka
+    ui.choiceA->setText("");
+    ui.choiceB->setText("");
+    ui.choiceC->setText("");
+    ui.choiceD->setText("");
+    ui.textEditQuestion->setText("");
+
     // k tomuto su headers <sstream> a <iomanip> -> aby sa vypisali body iba s max jednym desatinnym cislom
     std::ostringstream tempStream;
     tempStream << std::setprecision(2);
     tempStream << player.getPlayerScore();
 
     // vyhodnotenie
-    ui.groupBoxQuestion->setTitle("Vyhodnotenie");
-    ui.textEditQuestion->setText(QString("Koniec hry\nPocet ziskanych bodov: " + QString::fromStdString(tempStream.str())).toUtf8());
+    msgBox.setWindowTitle("Vyhodnotenie");
+    msgBox.setText(QString("Koniec hry\nPočet získaných bodov: " + QString::fromStdString(tempStream.str()).toUtf8()));
+    msgBox.exec();
 
     ui.pushButtonNewGame->setEnabled(true);
 
@@ -173,21 +179,21 @@ void cv8_milionar::on_pushButtonEndGame_clicked() // button Ukoncit hru
 
 void cv8_milionar::on_pushButtonAccept_clicked() // button Potvrdit
 {
-    cout << "2 chosen: " << chosenAnswer << endl << "correct answer: " << questions[randNum[questionNum]].getCorrectAnswer() << endl;
+    //cout << "2 chosen: " << chosenAnswer << endl << "correct answer: " << questions[randNum[questionNum]].getCorrectAnswer() << endl;
 
-    if (chosenAnswer == questions[randNum[questionNum]].getCorrectAnswer())
+    if (chosenAnswer == questions[randNum[questionNum]].getCorrectAnswer()) // ak je zadana spravna odpoved
     {
         //cout << "Correct" << endl;
-        msgBox.setText("Spravna odpoved, +1 bod");
+        msgBox.setText("Spravna odpoved, +1 bod"); // vypisanie spravy o spravnosti odpovede
         msgBox.exec();
 
         player.setPlayerScore(player.getPlayerScore() + 1.0);
         ui.scoreBox->setValue(player.getPlayerScore());
     }
-    else
+    else // ak nie je zadana spravna odpoved
     {
         //cout << "Incorrect" << endl;
-        msgBox.setText("Nespravna odpoved, -1 bod");
+        msgBox.setText("Nespravna odpoved, -1 bod"); // vypisanie spravy o spravnosti odpovede
         msgBox.exec();
 
         player.setPlayerScore(player.getPlayerScore() - 1.0);
@@ -217,6 +223,7 @@ void cv8_milionar::on_pushButtonAccept_clicked() // button Potvrdit
         ui.choiceC->setText(QString::fromStdString("C) " + questions[randNum[questionNum]].getAnswer(2)));
         ui.choiceD->setText(QString::fromStdString("D) " + questions[randNum[questionNum]].getAnswer(3)));
 
+        // toto z nejakeho dovodu nefunguje
         ui.choiceA->setChecked(false);
         ui.choiceB->setChecked(false);
         ui.choiceC->setChecked(false);
@@ -226,6 +233,7 @@ void cv8_milionar::on_pushButtonAccept_clicked() // button Potvrdit
 
 void cv8_milionar::on_pushButtonSkip_clicked() // button Preskocit otazku
 {
+    // vypisanie
     msgBox.setText("Otazka nezodpovedana, -0.5 boda");
     msgBox.exec();
     
@@ -269,7 +277,7 @@ void cv8_milionar::on_pushButtonZolik1_clicked() // zolik 1
     int temp = 0;
     int tempWrong[2] = { -1,-1 };
 
-    cout << "Zolik 1 used" << endl;
+    //cout << "Zolik 1 used" << endl;
     ui.pushButtonZolik1->setEnabled(false);
 
     for (int i = (questionNum % 2); i < (3 + questionNum % 2); i++)
@@ -295,7 +303,6 @@ void cv8_milionar::on_pushButtonZolik1_clicked() // zolik 1
         else if (tempWrong[i] == 3)
             ui.choiceD->setEnabled(false);
     }
-
 }
 
 void cv8_milionar::on_pushButtonZolik2_clicked() // zolik 2
@@ -303,7 +310,7 @@ void cv8_milionar::on_pushButtonZolik2_clicked() // zolik 2
     int temp = 0;
     int tempWrong[2] = { -1,-1 };
 
-    cout << "Zolik 2 used" << endl;
+    //cout << "Zolik 2 used" << endl;
     ui.pushButtonZolik2->setEnabled(false);
 
     for (int i = (questionNum % 2); i < (3 + questionNum % 2); i++)
@@ -336,7 +343,7 @@ void cv8_milionar::on_pushButtonZolik3_clicked() // zolik 3
     int temp = 0;
     int tempWrong[2] = { -1,-1 };
 
-    cout << "Zolik 3 used" << endl;
+    //cout << "Zolik 3 used" << endl;
     ui.pushButtonZolik3->setEnabled(false);
 
     for (int i = (questionNum % 2); i < (3 + questionNum % 2); i++)
@@ -370,26 +377,26 @@ void cv8_milionar::on_choiceA_clicked()
 {
     chosenAnswer = questions[randNum[questionNum]].getAnswer(0);
     
-    cout << "chosen: " << chosenAnswer << endl;
+    //cout << "chosen: " << chosenAnswer << endl;
 }
 
 void cv8_milionar::on_choiceB_clicked()
 {
     chosenAnswer = questions[randNum[questionNum]].getAnswer(1);
 
-    cout << "chosen: " << chosenAnswer << endl;
+    //cout << "chosen: " << chosenAnswer << endl;
 }
 
 void cv8_milionar::on_choiceC_clicked()
 {
     chosenAnswer = questions[randNum[questionNum]].getAnswer(2);
 
-    cout << "chosen: " << chosenAnswer << endl;
+    //cout << "chosen: " << chosenAnswer << endl;
 }
 
 void cv8_milionar::on_choiceD_clicked()
 {
     chosenAnswer = questions[randNum[questionNum]].getAnswer(3);
 
-    cout << "chosen: " << chosenAnswer << endl;
+    //cout << "chosen: " << chosenAnswer << endl;
 }

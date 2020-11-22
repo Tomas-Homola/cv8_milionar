@@ -5,8 +5,6 @@
 #include <QMessageBox>
 #include "QandA.h"
 #include "player.h"
-#include <vector>
-#include <array>
 
 class cv8_milionar : public QMainWindow
 {
@@ -22,7 +20,6 @@ private:
     int numOfQuestions = 0;
     int randNum[10] = { 0,1,2,3,4,5,6,8,9 };
     std::string chosenAnswer = "";
-    //bool correctChoice = false;
 
     //QandA otazky[10];
     QandA* questions;
