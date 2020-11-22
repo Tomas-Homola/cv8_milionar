@@ -68,6 +68,7 @@ cv8_milionar::cv8_milionar(QWidget *parent) : QMainWindow(parent) // co sa stane
     ui.groupBoxQuestion->setEnabled(false); // groupBox s otazkou
     ui.groupBoxChoices->setEnabled(false); // groupBox s moznostami
     ui.groupBoxBottom->setEnabled(false); // posledny groupBox
+    msgBox.setWindowTitle(" ");
 
     /*for (int i = 0; i < numOfQuestions; i++)
         printQuestion(questions[i]);*/
@@ -176,13 +177,19 @@ void cv8_milionar::on_pushButtonAccept_clicked() // button Potvrdit
 
     if (chosenAnswer == questions[randNum[questionNum]].getCorrectAnswer())
     {
-        cout << "Correct" << endl;
+        //cout << "Correct" << endl;
+        msgBox.setText("Spravna odpoved, +1 bod");
+        msgBox.exec();
+
         player.setPlayerScore(player.getPlayerScore() + 1.0);
         ui.scoreBox->setValue(player.getPlayerScore());
     }
     else
     {
-        cout << "Incorrect" << endl;
+        //cout << "Incorrect" << endl;
+        msgBox.setText("Nespravna odpoved, -1 bod");
+        msgBox.exec();
+
         player.setPlayerScore(player.getPlayerScore() - 1.0);
         if (player.getPlayerScore() < 0) // aby bol najmensi mozny pocet bodov 0
             player.setPlayerScore(0.0);
@@ -203,7 +210,7 @@ void cv8_milionar::on_pushButtonAccept_clicked() // button Potvrdit
         
         ui.textEditQuestion->setText(QString::fromStdString(questions[randNum[questionNum]].getQuestion()));
 
-        questions[randNum[questionNum]].shuffleAnswers();
+        questions[randNum[questionNum]].shuffleAnswers(); // pomiesanie odpovedi
 
         ui.choiceA->setText(QString::fromStdString("A) " + questions[randNum[questionNum]].getAnswer(0)));
         ui.choiceB->setText(QString::fromStdString("B) " + questions[randNum[questionNum]].getAnswer(1)));
@@ -219,6 +226,9 @@ void cv8_milionar::on_pushButtonAccept_clicked() // button Potvrdit
 
 void cv8_milionar::on_pushButtonSkip_clicked() // button Preskocit otazku
 {
+    msgBox.setText("Otazka nezodpovedana, -0.5 boda");
+    msgBox.exec();
+    
     player.setPlayerScore(player.getPlayerScore() - 0.5);
     if (player.getPlayerScore() < 0) // aby bol najmensi mozny pocet bodov 0
         player.setPlayerScore(0.0);
@@ -238,7 +248,7 @@ void cv8_milionar::on_pushButtonSkip_clicked() // button Preskocit otazku
         
         ui.textEditQuestion->setText(QString::fromStdString(questions[randNum[questionNum]].getQuestion()));
 
-        questions[randNum[questionNum]].shuffleAnswers();
+        questions[randNum[questionNum]].shuffleAnswers(); // pomiesanie odpovedi
 
         ui.choiceA->setText(QString::fromStdString("A) " + questions[randNum[questionNum]].getAnswer(0)));
         ui.choiceB->setText(QString::fromStdString("B) " + questions[randNum[questionNum]].getAnswer(1)));

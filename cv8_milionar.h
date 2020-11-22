@@ -2,6 +2,7 @@
 
 #include <QtWidgets/QMainWindow>
 #include <ui_cv8_milionar.h>
+#include <QMessageBox>
 #include "QandA.h"
 #include "player.h"
 #include <vector>
@@ -21,13 +22,13 @@ private:
     int numOfQuestions = 0;
     int randNum[10] = { 0,1,2,3,4,5,6,8,9 };
     std::string chosenAnswer = "";
-    bool correctChoice = false;
+    //bool correctChoice = false;
 
     //QandA otazky[10];
     QandA* questions;
     Player player;
-    std::array<QRadioButton*, 4> choice = { ui.choiceA, ui.choiceB, ui.choiceC, ui.choiceD };
-    QRadioButton* choices[4] = { ui.choiceA, ui.choiceB, ui.choiceC, ui.choiceD };
+
+    QMessageBox msgBox;
 
     bool loadQuestions(std::string fileName); // nacitanie otazok z txt suboru
 
