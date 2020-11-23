@@ -169,7 +169,7 @@ void cv8_milionar::on_pushButtonEndGame_clicked() // button Ukoncit hru
 
     // vyhodnotenie
     msgBox.setWindowTitle("Vyhodnotenie");
-    msgBox.setText(QString("Koniec hry\nPočet získaných bodov: " + QString::fromStdString(tempStream.str()).toUtf8()));
+    msgBox.setText(QString(u8"Koniec hry\nPočet získaných bodov: " + QString::fromStdString(tempStream.str())));
     msgBox.exec();
 
     ui.pushButtonNewGame->setEnabled(true);
@@ -184,7 +184,7 @@ void cv8_milionar::on_pushButtonAccept_clicked() // button Potvrdit
     if (chosenAnswer == questions[randNum[questionNum]].getCorrectAnswer()) // ak je zadana spravna odpoved
     {
         //cout << "Correct" << endl;
-        msgBox.setText("Spravna odpoved, +1 bod"); // vypisanie spravy o spravnosti odpovede
+        msgBox.setText(u8"Správna odpoveď, +1 bod"); // vypisanie spravy o spravnosti odpovede
         msgBox.exec();
 
         player.setPlayerScore(player.getPlayerScore() + 1.0);
@@ -193,7 +193,7 @@ void cv8_milionar::on_pushButtonAccept_clicked() // button Potvrdit
     else // ak nie je zadana spravna odpoved
     {
         //cout << "Incorrect" << endl;
-        msgBox.setText("Nespravna odpoved, -1 bod"); // vypisanie spravy o spravnosti odpovede
+        msgBox.setText(u8"Nesprávna odpoveď, -1 bod"); // vypisanie spravy o spravnosti odpovede
         msgBox.exec();
 
         player.setPlayerScore(player.getPlayerScore() - 1.0);
@@ -234,7 +234,7 @@ void cv8_milionar::on_pushButtonAccept_clicked() // button Potvrdit
 void cv8_milionar::on_pushButtonSkip_clicked() // button Preskocit otazku
 {
     // vypisanie
-    msgBox.setText("Otazka nezodpovedana, -0.5 boda");
+    msgBox.setText(u8"Otázka nezodpovedaná, -0.5 boda");
     msgBox.exec();
     
     player.setPlayerScore(player.getPlayerScore() - 0.5);
