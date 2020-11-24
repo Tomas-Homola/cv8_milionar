@@ -21,13 +21,15 @@ private:
     int randNum[10] = { 0,1,2,3,4,5,6,8,9 };
     std::string chosenAnswer = "";
 
-    //QandA otazky[10];
+    //QandA questions[10];
     QandA* questions;
     Player player;
 
     QMessageBox msgBox;
 
     bool loadQuestions(std::string fileName); // nacitanie otazok z txt suboru
+    void printQuestion(QandA& q);
+    void uncheckChoices();
 
 private slots:
     void on_pushButtonNewGame_clicked(); // nova hra

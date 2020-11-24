@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 #include <cstdlib>
+#include <QDebug>
 
 using std::cout;
 using std::endl;
@@ -42,11 +43,47 @@ bool cv8_milionar::loadQuestions(std::string fileName)
     return true;
 }
 
-void printQuestion(QandA& q)
+void cv8_milionar::printQuestion(QandA& q)
 {
     cout << q.getQuestion() << endl;
     for (int i = 0; i < 4; i++)
         cout << q.getAnswer(i) << endl;
+}
+
+void cv8_milionar::uncheckChoices()
+{
+    //qDebug() << "kontrola isChecked";
+    if (ui.choiceA->isChecked())
+    {
+        ui.choiceA->setAutoExclusive(false);
+        ui.choiceA->setChecked(false);
+        ui.choiceA->setAutoExclusive(true);
+        qDebug() << "A unchecked";
+    }
+    
+    if (ui.choiceB->isChecked())
+    {
+        ui.choiceB->setAutoExclusive(false);
+        ui.choiceB->setChecked(false);
+        ui.choiceB->setAutoExclusive(true);
+        qDebug() << "B unchecked";
+    }
+
+    if (ui.choiceC->isChecked())
+    {
+        ui.choiceC->setAutoExclusive(false);
+        ui.choiceC->setChecked(false);
+        ui.choiceC->setAutoExclusive(true);
+        qDebug() << "C unchecked";
+    }
+
+    if (ui.choiceD->isChecked())
+    {
+        ui.choiceD->setAutoExclusive(false);
+        ui.choiceD->setChecked(false);
+        ui.choiceD->setAutoExclusive(true);
+        qDebug() << "D unchecked";
+    }
 }
 
 cv8_milionar::cv8_milionar(QWidget *parent) : QMainWindow(parent) // co sa stane po spusteni
@@ -55,9 +92,9 @@ cv8_milionar::cv8_milionar(QWidget *parent) : QMainWindow(parent) // co sa stane
 
     // nacitanie otazok z "_otazky.txt"
     if (loadQuestions("_otazky.txt") == false)
-        cout << "Otazky sa nenacitali" << endl;
+        qDebug() << "Otazky sa nenacitali";
     else
-        cout << "Otazky uspesne nacitane" << endl;
+        qDebug() << "Otazky uspesne nacitane";
 
     // deaktivacia buttonov a groupBoxov, ktore sa nebudu dat stlacit, kym sa nezacne hra
     ui.pushButtonEndGame->setEnabled(false); // Ukoncit hru
@@ -68,6 +105,7 @@ cv8_milionar::cv8_milionar(QWidget *parent) : QMainWindow(parent) // co sa stane
     ui.groupBoxChoices->setEnabled(false); // groupBox s moznostami
     ui.groupBoxBottom->setEnabled(false); // posledny groupBox
     msgBox.setWindowTitle(" ");
+    qDebug() << "hra nacitana";
 
     /*for (int i = 0; i < numOfQuestions; i++)
         printQuestion(questions[i]);*/
@@ -122,6 +160,8 @@ void cv8_milionar::on_pushButtonNewGame_clicked() // button Nova hra
         
         ui.textEditQuestion->setText(QString::fromStdString(questions[randNum[questionNum]].getQuestion())); // vypisanie prvej otazky, ked sa zacne hra
 
+        uncheckChoices();
+
         questions[randNum[questionNum]].shuffleAnswers(); // pomiesanie odpovedi na danu otazku
 
         ui.choiceA->setText(QString::fromStdString("A) " + questions[randNum[questionNum]].getAnswer(0)));
@@ -133,8 +173,6 @@ void cv8_milionar::on_pushButtonNewGame_clicked() // button Nova hra
 
 void cv8_milionar::on_pushButtonEndGame_clicked() // button Ukoncit hru
 {
-    //cout << "Koniec hry" << endl;
-
     // odcitanie bodov za nezodpovedane otazky
     int temp = numOfQuestions - questionNum;
 
@@ -152,8 +190,8 @@ void cv8_milionar::on_pushButtonEndGame_clicked() // button Ukoncit hru
     ui.groupBoxZoliky->setEnabled(false); // groupBox so zolikmi
     ui.groupBoxChoices->setEnabled(false); // groupBox s moznostami
     ui.groupBoxBottom->setEnabled(false); // posledny groupBox
-    ui.randomQuestions->setEnabled(true);
-    ui.difficulty->setEnabled(true);
+    ui.randomQuestions->setEnabled(true); // nahodne poradie otazok
+    ui.difficulty->setEnabled(true); // vyber obtiaznosti
 
     // pri radioButtonoch nebudu uz vypisane posledne mozne odpovede a ani otazka
     ui.choiceA->setText("");
@@ -179,11 +217,8 @@ void cv8_milionar::on_pushButtonEndGame_clicked() // button Ukoncit hru
 
 void cv8_milionar::on_pushButtonAccept_clicked() // button Potvrdit
 {
-    //cout << "2 chosen: " << chosenAnswer << endl << "correct answer: " << questions[randNum[questionNum]].getCorrectAnswer() << endl;
-
     if (chosenAnswer == questions[randNum[questionNum]].getCorrectAnswer()) // ak je zadana spravna odpoved
     {
-        //cout << "Correct" << endl;
         msgBox.setText(u8"Správna odpoveď, +1 bod"); // vypisanie spravy o spravnosti odpovede
         msgBox.exec();
 
@@ -192,7 +227,6 @@ void cv8_milionar::on_pushButtonAccept_clicked() // button Potvrdit
     }
     else // ak nie je zadana spravna odpoved
     {
-        //cout << "Incorrect" << endl;
         msgBox.setText(u8"Nesprávna odpoveď, -1 bod"); // vypisanie spravy o spravnosti odpovede
         msgBox.exec();
 
@@ -216,18 +250,14 @@ void cv8_milionar::on_pushButtonAccept_clicked() // button Potvrdit
         
         ui.textEditQuestion->setText(QString::fromStdString(questions[randNum[questionNum]].getQuestion()));
 
+        uncheckChoices();
+
         questions[randNum[questionNum]].shuffleAnswers(); // pomiesanie odpovedi
 
         ui.choiceA->setText(QString::fromStdString("A) " + questions[randNum[questionNum]].getAnswer(0)));
         ui.choiceB->setText(QString::fromStdString("B) " + questions[randNum[questionNum]].getAnswer(1)));
         ui.choiceC->setText(QString::fromStdString("C) " + questions[randNum[questionNum]].getAnswer(2)));
         ui.choiceD->setText(QString::fromStdString("D) " + questions[randNum[questionNum]].getAnswer(3)));
-
-        // toto z nejakeho dovodu nefunguje
-        ui.choiceA->setChecked(false);
-        ui.choiceB->setChecked(false);
-        ui.choiceC->setChecked(false);
-        ui.choiceD->setChecked(false);
     }
 }
 
@@ -256,17 +286,14 @@ void cv8_milionar::on_pushButtonSkip_clicked() // button Preskocit otazku
         
         ui.textEditQuestion->setText(QString::fromStdString(questions[randNum[questionNum]].getQuestion()));
 
+        uncheckChoices();
+
         questions[randNum[questionNum]].shuffleAnswers(); // pomiesanie odpovedi
 
         ui.choiceA->setText(QString::fromStdString("A) " + questions[randNum[questionNum]].getAnswer(0)));
         ui.choiceB->setText(QString::fromStdString("B) " + questions[randNum[questionNum]].getAnswer(1)));
         ui.choiceC->setText(QString::fromStdString("C) " + questions[randNum[questionNum]].getAnswer(2)));
         ui.choiceD->setText(QString::fromStdString("D) " + questions[randNum[questionNum]].getAnswer(3)));
-
-        ui.choiceA->setChecked(false);
-        ui.choiceB->setChecked(false);
-        ui.choiceC->setChecked(false);
-        ui.choiceD->setChecked(false);
     }
 }
 
@@ -277,7 +304,6 @@ void cv8_milionar::on_pushButtonZolik1_clicked() // zolik 1
     int temp = 0;
     int tempWrong[2] = { -1,-1 };
 
-    //cout << "Zolik 1 used" << endl;
     ui.pushButtonZolik1->setEnabled(false);
 
     for (int i = (questionNum % 2); i < (3 + questionNum % 2); i++)
@@ -310,7 +336,6 @@ void cv8_milionar::on_pushButtonZolik2_clicked() // zolik 2
     int temp = 0;
     int tempWrong[2] = { -1,-1 };
 
-    //cout << "Zolik 2 used" << endl;
     ui.pushButtonZolik2->setEnabled(false);
 
     for (int i = (questionNum % 2); i < (3 + questionNum % 2); i++)
@@ -343,7 +368,6 @@ void cv8_milionar::on_pushButtonZolik3_clicked() // zolik 3
     int temp = 0;
     int tempWrong[2] = { -1,-1 };
 
-    //cout << "Zolik 3 used" << endl;
     ui.pushButtonZolik3->setEnabled(false);
 
     for (int i = (questionNum % 2); i < (3 + questionNum % 2); i++)
@@ -376,27 +400,19 @@ void cv8_milionar::on_pushButtonZolik3_clicked() // zolik 3
 void cv8_milionar::on_choiceA_clicked()
 {
     chosenAnswer = questions[randNum[questionNum]].getAnswer(0);
-    
-    //cout << "chosen: " << chosenAnswer << endl;
 }
 
 void cv8_milionar::on_choiceB_clicked()
 {
     chosenAnswer = questions[randNum[questionNum]].getAnswer(1);
-
-    //cout << "chosen: " << chosenAnswer << endl;
 }
 
 void cv8_milionar::on_choiceC_clicked()
 {
     chosenAnswer = questions[randNum[questionNum]].getAnswer(2);
-
-    //cout << "chosen: " << chosenAnswer << endl;
 }
 
 void cv8_milionar::on_choiceD_clicked()
 {
     chosenAnswer = questions[randNum[questionNum]].getAnswer(3);
-
-    //cout << "chosen: " << chosenAnswer << endl;
 }
