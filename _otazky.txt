@@ -20,8 +20,8 @@ Formát papiera A4 má plochu (v cm^2):
 632.7
 673.2
 Aká farba má kód #FFFFFF?
-čierna
 biela
+čierna
 modrá
 žiadna
 Dokončite príslovie: Oheň je dobrý sluha, ale zlý ...
