@@ -277,7 +277,8 @@ void cv8_milionar::on_pushButtonAccept_clicked()
         ui.choiceC->setText(QString::fromStdString("C) " + questions[randNum[questionNum]].getAnswer(2)));
         ui.choiceD->setText(QString::fromStdString("D) " + questions[randNum[questionNum]].getAnswer(3)));
 
-        ui.pushButtonAccept->setEnabled(false);
+        if (ui.uncheckChoices->isChecked())
+            ui.pushButtonAccept->setEnabled(false);
     }
 }
 
