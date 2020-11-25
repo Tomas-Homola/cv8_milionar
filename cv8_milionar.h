@@ -5,6 +5,7 @@
 #include <QMessageBox>
 #include "QandA.h"
 #include "player.h"
+#include <vector>
 
 class cv8_milionar : public QMainWindow
 {
@@ -24,6 +25,7 @@ private:
     //QandA questions[10];
     QandA* questions;
     Player player;
+    std::vector<QRadioButton*> choice;
 
     QMessageBox msgBox;
 

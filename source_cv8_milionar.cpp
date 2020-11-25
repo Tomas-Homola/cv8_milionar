@@ -52,37 +52,16 @@ void cv8_milionar::printQuestion(QandA& q)
 
 void cv8_milionar::uncheckChoices()
 {
-    //qDebug() << "kontrola isChecked";
-    if (ui.choiceA->isChecked())
+    for (int i = 0; i < 4; i++)
     {
-        ui.choiceA->setAutoExclusive(false);
-        ui.choiceA->setChecked(false);
-        ui.choiceA->setAutoExclusive(true);
-        qDebug() << "A unchecked";
-    }
-    
-    if (ui.choiceB->isChecked())
-    {
-        ui.choiceB->setAutoExclusive(false);
-        ui.choiceB->setChecked(false);
-        ui.choiceB->setAutoExclusive(true);
-        qDebug() << "B unchecked";
-    }
-
-    if (ui.choiceC->isChecked())
-    {
-        ui.choiceC->setAutoExclusive(false);
-        ui.choiceC->setChecked(false);
-        ui.choiceC->setAutoExclusive(true);
-        qDebug() << "C unchecked";
-    }
-
-    if (ui.choiceD->isChecked())
-    {
-        ui.choiceD->setAutoExclusive(false);
-        ui.choiceD->setChecked(false);
-        ui.choiceD->setAutoExclusive(true);
-        qDebug() << "D unchecked";
+        if (!choice[i]->isChecked())
+            continue;
+        else
+        {
+            choice[i]->setAutoExclusive(false);
+            choice[i]->setChecked(false);
+            choice[i]->setAutoExclusive(true);
+        }
     }
 }
 
@@ -90,11 +69,22 @@ cv8_milionar::cv8_milionar(QWidget *parent) : QMainWindow(parent) // co sa stane
 {
     ui.setupUi(this);
 
+    srand((unsigned)time(0));
+
     // nacitanie otazok z "_otazky.txt"
     if (loadQuestions("_otazky.txt") == false)
+    {
         qDebug() << "Otazky sa nenacitali";
+        exit(-1);
+    }
     else
         qDebug() << "Otazky uspesne nacitane";
+
+    // naplnenie vekotra smernikmi na jednotlive radioButtony -> funguje to iba, ak je to spravene takto
+    choice.push_back(ui.choiceA);
+    choice.push_back(ui.choiceB);
+    choice.push_back(ui.choiceC);
+    choice.push_back(ui.choiceD);
 
     // deaktivacia buttonov a groupBoxov, ktore sa nebudu dat stlacit, kym sa nezacne hra
     ui.pushButtonEndGame->setEnabled(false); // Ukoncit hru
@@ -111,7 +101,8 @@ cv8_milionar::cv8_milionar(QWidget *parent) : QMainWindow(parent) // co sa stane
         printQuestion(questions[i]);*/
 }
 
-void cv8_milionar::on_pushButtonNewGame_clicked() // button Nova hra
+// Nova hra
+void cv8_milionar::on_pushButtonNewGame_clicked()
 {
     if (ui.lineEditName->text() != "") // pokial nie je zadane meno hraca, tak sa hra nepusti
     {
@@ -119,6 +110,7 @@ void cv8_milionar::on_pushButtonNewGame_clicked() // button Nova hra
         player.setPlayerName(ui.lineEditName->text()); // nastavenie mena hraca
         questionNum = 0; // index pre poradie otazok
 
+        // poskytnutie zolikov podla obtiaznosti
         if (ui.difficulty->currentIndex() == 0)
         {
             ui.pushButtonZolik2->setVisible(true);
@@ -134,12 +126,14 @@ void cv8_milionar::on_pushButtonNewGame_clicked() // button Nova hra
             ui.pushButtonZolik3->setVisible(false);
         }
 
+        // nahodne poradie otazok
         if (ui.randomQuestions->isChecked()) // ak je vybrane nahodne poradie otazok
             std::random_shuffle(std::begin(randNum), std::end(randNum)); // pomiesaju sa jednotlive indexi otazok
         else
             for (int i = 0; i < 10; i++) // inak pojdu pekne od prvej po poslednu
                 randNum[i] = i;
 
+        // nastavenie Enabled pre jednotlive prvky
         ui.pushButtonEndGame->setEnabled(true); // Ukoncit hru
         ui.pushButtonAccept->setEnabled(true); // Potvrdit
         ui.pushButtonSkip->setEnabled(true); // Preskocit otazku
@@ -149,18 +143,23 @@ void cv8_milionar::on_pushButtonNewGame_clicked() // button Nova hra
         ui.groupBoxBottom->setEnabled(true); // posledny groupBox
         ui.pushButtonNewGame->setEnabled(false); // Nova hra
         ui.randomQuestions->setEnabled(false); // checkBox Nahodne
+        ui.uncheckChoices->setEnabled(false); // checkBox Odznacovat odpovede
         ui.difficulty->setEnabled(false); // vyber obtiaznosti
         ui.pushButtonZolik1->setEnabled(true); // zolik 1
         ui.pushButtonZolik2->setEnabled(true); // zolik 2
         ui.pushButtonZolik3->setEnabled(true); // zolik 3
 
+        // player stuff
         ui.lineEditName->setReadOnly(true); // zakazane menit meno pocas hry
-
         ui.scoreBox->setValue(player.getPlayerScore());
+
+        for (int i = 0; i < 4; i++)
+            choice[i]->setEnabled(true);
         
         ui.textEditQuestion->setText(QString::fromStdString(questions[randNum[questionNum]].getQuestion())); // vypisanie prvej otazky, ked sa zacne hra
 
-        uncheckChoices();
+        if (ui.uncheckChoices->isChecked())
+            uncheckChoices();
 
         questions[randNum[questionNum]].shuffleAnswers(); // pomiesanie odpovedi na danu otazku
 
@@ -168,14 +167,16 @@ void cv8_milionar::on_pushButtonNewGame_clicked() // button Nova hra
         ui.choiceB->setText(QString::fromStdString("B) " + questions[randNum[questionNum]].getAnswer(1)));
         ui.choiceC->setText(QString::fromStdString("C) " + questions[randNum[questionNum]].getAnswer(2)));
         ui.choiceD->setText(QString::fromStdString("D) " + questions[randNum[questionNum]].getAnswer(3)));
+
+        ui.pushButtonAccept->setEnabled(false);
     }
 }
 
-void cv8_milionar::on_pushButtonEndGame_clicked() // button Ukoncit hru
+// Ukoncit hru
+void cv8_milionar::on_pushButtonEndGame_clicked()
 {
     // odcitanie bodov za nezodpovedane otazky
     int temp = numOfQuestions - questionNum;
-
     player.setPlayerScore(player.getPlayerScore() - temp * 0.5);
 
     if (player.getPlayerScore() < 0) // aby bol najmensi mozny pocet bodov 0
@@ -192,6 +193,7 @@ void cv8_milionar::on_pushButtonEndGame_clicked() // button Ukoncit hru
     ui.groupBoxBottom->setEnabled(false); // posledny groupBox
     ui.randomQuestions->setEnabled(true); // nahodne poradie otazok
     ui.difficulty->setEnabled(true); // vyber obtiaznosti
+    ui.uncheckChoices->setEnabled(true);
 
     // pri radioButtonoch nebudu uz vypisane posledne mozne odpovede a ani otazka
     ui.choiceA->setText("");
@@ -215,8 +217,20 @@ void cv8_milionar::on_pushButtonEndGame_clicked() // button Ukoncit hru
     ui.lineEditName->setReadOnly(false);
 }
 
-void cv8_milionar::on_pushButtonAccept_clicked() // button Potvrdit
+// button Potvrdit
+void cv8_milionar::on_pushButtonAccept_clicked()
 {
+    // vybranie odpovede
+    for (int i = 0; i < 4; i++)
+    {
+        if (choice[i]->isChecked())
+        {
+            chosenAnswer = questions[randNum[questionNum]].getAnswer(i);
+            qDebug() << "Vybrane: " << QString::fromStdString(chosenAnswer);
+            break;
+        }
+    }
+    
     if (chosenAnswer == questions[randNum[questionNum]].getCorrectAnswer()) // ak je zadana spravna odpoved
     {
         msgBox.setText(u8"Správna odpoveď, +1 bod"); // vypisanie spravy o spravnosti odpovede
@@ -243,14 +257,18 @@ void cv8_milionar::on_pushButtonAccept_clicked() // button Potvrdit
 
     if (questionNum < numOfQuestions)
     {
-        ui.choiceA->setEnabled(true);
-        ui.choiceB->setEnabled(true);
-        ui.choiceC->setEnabled(true);
-        ui.choiceD->setEnabled(true);
+        for (int i = 0; i < 4; i++)
+        {
+            if (!choice[i]->isEnabled())
+                choice[i]->setEnabled(true);
+            else
+                continue;
+        }
         
         ui.textEditQuestion->setText(QString::fromStdString(questions[randNum[questionNum]].getQuestion()));
 
-        uncheckChoices();
+        if (ui.uncheckChoices->isChecked())
+            uncheckChoices();
 
         questions[randNum[questionNum]].shuffleAnswers(); // pomiesanie odpovedi
 
@@ -258,6 +276,8 @@ void cv8_milionar::on_pushButtonAccept_clicked() // button Potvrdit
         ui.choiceB->setText(QString::fromStdString("B) " + questions[randNum[questionNum]].getAnswer(1)));
         ui.choiceC->setText(QString::fromStdString("C) " + questions[randNum[questionNum]].getAnswer(2)));
         ui.choiceD->setText(QString::fromStdString("D) " + questions[randNum[questionNum]].getAnswer(3)));
+
+        ui.pushButtonAccept->setEnabled(false);
     }
 }
 
@@ -279,14 +299,18 @@ void cv8_milionar::on_pushButtonSkip_clicked() // button Preskocit otazku
 
     if (questionNum < numOfQuestions)
     {
-        ui.choiceA->setEnabled(true);
-        ui.choiceB->setEnabled(true);
-        ui.choiceC->setEnabled(true);
-        ui.choiceD->setEnabled(true);
-        
+        for (int i = 0; i < 4; i++)
+        {
+            if (!choice[i]->isEnabled())
+                choice[i]->setEnabled(true);
+            else
+                continue;
+        }
+
         ui.textEditQuestion->setText(QString::fromStdString(questions[randNum[questionNum]].getQuestion()));
 
-        uncheckChoices();
+        if (ui.uncheckChoices->isChecked())
+            uncheckChoices();
 
         questions[randNum[questionNum]].shuffleAnswers(); // pomiesanie odpovedi
 
@@ -301,19 +325,25 @@ void cv8_milionar::on_pushButtonSkip_clicked() // button Preskocit otazku
 
 void cv8_milionar::on_pushButtonZolik1_clicked() // zolik 1
 {
-    int temp = 0;
-    int tempWrong[2] = { -1,-1 };
-
     ui.pushButtonZolik1->setEnabled(false);
 
-    for (int i = (questionNum % 2); i < (3 + questionNum % 2); i++)
+    int temp = 0;
+    int tempWrong[2] = { -1,-1 };
+    
+    for (int i = 0; i < 4; i++)
     {
-        if (questions[randNum[questionNum]].getAnswer(i) != questions[randNum[questionNum]].getCorrectAnswer())
+        if (choice[i]->isEnabled())
         {
-            tempWrong[temp] = i;
-            temp++;
+            //qDebug() << i << " is enabled";
+            if (questions[randNum[questionNum]].getAnswer(i) != questions[randNum[questionNum]].getCorrectAnswer())
+            {
+                //qDebug() << "temp pred: " << temp;
+                tempWrong[temp] = i;
+                temp++;
+                //qDebug() << "temp po: " << temp;
+            }
         }
-        
+
         if (temp == 2)
             break;
     }
@@ -321,29 +351,36 @@ void cv8_milionar::on_pushButtonZolik1_clicked() // zolik 1
     for (int i = 0; i < 2; i++)
     {
         if (tempWrong[i] == 0)
-            ui.choiceA->setEnabled(false);
+            choice[0]->setEnabled(false);
         else if (tempWrong[i] == 1)
-            ui.choiceB->setEnabled(false);
+            choice[1]->setEnabled(false);
         else if (tempWrong[i] == 2)
-            ui.choiceC->setEnabled(false);
+            choice[2]->setEnabled(false);
         else if (tempWrong[i] == 3)
-            ui.choiceD->setEnabled(false);
+            choice[3]->setEnabled(false);
     }
+
 }
 
 void cv8_milionar::on_pushButtonZolik2_clicked() // zolik 2
 {
+    ui.pushButtonZolik2->setEnabled(false);
+
     int temp = 0;
     int tempWrong[2] = { -1,-1 };
 
-    ui.pushButtonZolik2->setEnabled(false);
-
-    for (int i = (questionNum % 2); i < (3 + questionNum % 2); i++)
+    for (int i = 0; i < 4; i++)
     {
-        if (questions[randNum[questionNum]].getAnswer(i) != questions[randNum[questionNum]].getCorrectAnswer())
+        if (choice[i]->isEnabled())
         {
-            tempWrong[temp] = i;
-            temp++;
+            //qDebug() << i << " is enabled";
+            if (questions[randNum[questionNum]].getAnswer(i) != questions[randNum[questionNum]].getCorrectAnswer())
+            {
+                //qDebug() << "temp pred: " << temp;
+                tempWrong[temp] = i;
+                temp++;
+                //qDebug() << "temp po: " << temp;
+            }
         }
 
         if (temp == 2)
@@ -353,29 +390,35 @@ void cv8_milionar::on_pushButtonZolik2_clicked() // zolik 2
     for (int i = 0; i < 2; i++)
     {
         if (tempWrong[i] == 0)
-            ui.choiceA->setEnabled(false);
+            choice[0]->setEnabled(false);
         else if (tempWrong[i] == 1)
-            ui.choiceB->setEnabled(false);
+            choice[1]->setEnabled(false);
         else if (tempWrong[i] == 2)
-            ui.choiceC->setEnabled(false);
+            choice[2]->setEnabled(false);
         else if (tempWrong[i] == 3)
-            ui.choiceD->setEnabled(false);
+            choice[3]->setEnabled(false);
     }
 }
 
 void cv8_milionar::on_pushButtonZolik3_clicked() // zolik 3
 {
+    ui.pushButtonZolik3->setEnabled(false);
+
     int temp = 0;
     int tempWrong[2] = { -1,-1 };
 
-    ui.pushButtonZolik3->setEnabled(false);
-
-    for (int i = (questionNum % 2); i < (3 + questionNum % 2); i++)
+    for (int i = 0; i < 4; i++)
     {
-        if (questions[randNum[questionNum]].getAnswer(i) != questions[randNum[questionNum]].getCorrectAnswer())
+        if (choice[i]->isEnabled())
         {
-            tempWrong[temp] = i;
-            temp++;
+            //qDebug() << i << " is enabled";
+            if (questions[randNum[questionNum]].getAnswer(i) != questions[randNum[questionNum]].getCorrectAnswer())
+            {
+                //qDebug() << "temp pred: " << temp;
+                tempWrong[temp] = i;
+                temp++;
+                //qDebug() << "temp po: " << temp;
+            }
         }
 
         if (temp == 2)
@@ -385,13 +428,13 @@ void cv8_milionar::on_pushButtonZolik3_clicked() // zolik 3
     for (int i = 0; i < 2; i++)
     {
         if (tempWrong[i] == 0)
-            ui.choiceA->setEnabled(false);
+            choice[0]->setEnabled(false);
         else if (tempWrong[i] == 1)
-            ui.choiceB->setEnabled(false);
+            choice[1]->setEnabled(false);
         else if (tempWrong[i] == 2)
-            ui.choiceC->setEnabled(false);
+            choice[2]->setEnabled(false);
         else if (tempWrong[i] == 3)
-            ui.choiceD->setEnabled(false);
+            choice[3]->setEnabled(false);
     }
 }
 
@@ -399,20 +442,24 @@ void cv8_milionar::on_pushButtonZolik3_clicked() // zolik 3
 
 void cv8_milionar::on_choiceA_clicked()
 {
-    chosenAnswer = questions[randNum[questionNum]].getAnswer(0);
+    if (!ui.pushButtonAccept->isEnabled())
+        ui.pushButtonAccept->setEnabled(true);
 }
 
 void cv8_milionar::on_choiceB_clicked()
 {
-    chosenAnswer = questions[randNum[questionNum]].getAnswer(1);
+    if (!ui.pushButtonAccept->isEnabled())
+        ui.pushButtonAccept->setEnabled(true);
 }
 
 void cv8_milionar::on_choiceC_clicked()
 {
-    chosenAnswer = questions[randNum[questionNum]].getAnswer(2);
+    if (!ui.pushButtonAccept->isEnabled())
+        ui.pushButtonAccept->setEnabled(true);
 }
 
 void cv8_milionar::on_choiceD_clicked()
 {
-    chosenAnswer = questions[randNum[questionNum]].getAnswer(3);
+    if (!ui.pushButtonAccept->isEnabled())
+        ui.pushButtonAccept->setEnabled(true);
 }
