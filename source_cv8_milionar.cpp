@@ -158,8 +158,7 @@ void cv8_milionar::on_pushButtonNewGame_clicked()
         
         ui.textEditQuestion->setText(QString::fromStdString(questions[randNum[questionNum]].getQuestion())); // vypisanie prvej otazky, ked sa zacne hra
 
-        if (ui.uncheckChoices->isChecked())
-            uncheckChoices();
+        uncheckChoices();
 
         questions[randNum[questionNum]].shuffleAnswers(); // pomiesanie odpovedi na danu otazku
 
@@ -185,6 +184,7 @@ void cv8_milionar::on_pushButtonEndGame_clicked()
     ui.scoreBox->setValue(player.getPlayerScore());
 
     // znefunkcnenie tlacitok na konci hry
+    uncheckChoices();
     ui.pushButtonEndGame->setEnabled(false); // Ukoncit hru
     ui.pushButtonAccept->setEnabled(false); // Potvrdit
     ui.pushButtonSkip->setEnabled(false); // Preskocit otazku
